@@ -7,12 +7,16 @@ import { useForm } from "react-hook-form"
 import { Input } from "@/components/ui/input"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
+import Password from "@/components/ui/Password"
 
 const formSchema = z.object({
   name: z.string().min(3).max(50),
   email : z.email(),
   password : z.string().min(8),
   confirmPassword : z.string().min(8)
+}).refine((data) => data.password === data.confirmPassword, {
+    message : 'Password do not match',
+    path : ['confirmPassword']
 })
 
 
@@ -54,7 +58,7 @@ export function SignUpForm({
                                 <FormItem>
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="write your name" {...field} />
+                                        <Input placeholder="Mahadi Hasan" {...field} />
                                     </FormControl>
                                     <FormDescription className="sr-only">
                                         This is your public display name.
@@ -70,7 +74,7 @@ export function SignUpForm({
                                 <FormItem>
                                     <FormLabel>Email</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="write your email" type="email" {...field} />
+                                        <Input placeholder="mahadi@gmail.com" type="email" {...field} />
                                     </FormControl>
                                     <FormDescription className="sr-only">
                                         This is your public display name.
@@ -86,7 +90,7 @@ export function SignUpForm({
                                 <FormItem>
                                     <FormLabel>Password</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="write your password" type="password" {...field} />
+                                       <Password {...field}/>
                                     </FormControl>
                                     <FormDescription className="sr-only">
                                         This is your public display name.
@@ -102,7 +106,7 @@ export function SignUpForm({
                                 <FormItem>
                                     <FormLabel>Confirm password</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="write your confirm password" type="password" {...field} />
+                                        <Password {...field}/>
                                     </FormControl>
                                     <FormDescription className="sr-only">
                                         This is your public display name.
