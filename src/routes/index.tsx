@@ -2,6 +2,7 @@ import App from "@/App";
 import About from "@/pages/About";
 import LoginPage from "@/pages/Login";
 import Registration from "@/pages/Registration";
+import Verify from "@/pages/Verify";
 import { createBrowserRouter } from "react-router";
 
 export const router = createBrowserRouter([
@@ -22,5 +23,9 @@ export const router = createBrowserRouter([
     {
         path : '/registration',
         Component : Registration
+    },
+    {
+        path : '/verify',
+        Component : Verify
     },
 ])

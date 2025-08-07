@@ -1,13 +1,15 @@
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { useForm } from "react-hook-form"
 import { Input } from "@/components/ui/input"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Password from "@/components/ui/Password"
+import { useRegisterMutation } from "@/redux/features/auth/auth.api"
+import { toast } from "sonner"
 
 const formSchema = z.object({
   name: z.string().min(3).max(50),
@@ -25,6 +27,9 @@ export function SignUpForm({
     ...props
 }: React.HtmlHTMLAttributes<HTMLDivElement>) {
 
+    const [register]  = useRegisterMutation()
+    const navigate = useNavigate()
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver : zodResolver(formSchema),
         defaultValues : {
@@ -35,8 +40,21 @@ export function SignUpForm({
         }
     })
 
-    const onSubmit = (data : z.infer<typeof formSchema>) => {
-        console.log(data);
+    const onSubmit = async(data : z.infer<typeof formSchema>) => {
+        const userInfo = {
+            name : data.name,
+            email : data.email,
+            password : data.password
+        }
+
+        try {
+            const result = await register(userInfo).unwrap()
+            console.log(result);
+            toast.success('user created succesfully')
+            navigate('/verify')
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     return (
