@@ -46,7 +46,8 @@ export function LoginForm({
             toast.success('Login succesfully')
         } catch (error : any) {
             console.log(error);
-            if(error.status === 401){
+            toast.error(error.data.message)
+            if(error.status=== 401){
                 toast.error('User doest not verified')
                 navigate('/verify', {state : data.email})
             }

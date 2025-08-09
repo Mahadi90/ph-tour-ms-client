@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -52,8 +53,9 @@ export function SignUpForm({
             console.log(result);
             toast.success('user created succesfully')
             navigate('/verify')
-        } catch (error) {
+        } catch (error : any) {
             console.log(error);
+            toast.error(error?.data?.message)
         }
     }
 
