@@ -22,6 +22,7 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSentOtpMutation, useVerifyOtpMutation } from "@/redux/features/auth/auth.api";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 
 const FormSchema = z.object({
@@ -38,6 +39,7 @@ const Verify = () => {
     const [confirmed, setConfirmed] = useState(false)
     const [sendOtp] = useSentOtpMutation()
     const [verifyOtp] = useVerifyOtpMutation()
+    const [timer, setTimer] = useState(120)
 
     useEffect(() => {
         if (!email) {
@@ -45,6 +47,17 @@ const Verify = () => {
         }
     }, [email])
 
+    useEffect(() => {
+        if (!email || !confirmed) {
+            return;
+        }
+        const timerId = setInterval(() => {
+            setTimer((prev) => prev > 0 ? prev - 1 : 0)
+            // console.log('kk');
+        }, 1000)
+
+        return () => clearInterval(timerId)
+    }, [email, confirmed])
 
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -54,16 +67,17 @@ const Verify = () => {
         },
     })
 
-   
 
-    const handleConfirmed = async () => {
+
+    const handleSendOtp = async () => {
         try {
-         const loadingId = toast.loading('sending OTP...')
+            const loadingId = toast.loading('sending OTP...')
             const res = await sendOtp({ email: email }).unwrap()
-            
+
             if (res.success) {
-                toast.success("OTP sent to your email", {id : loadingId})
+                toast.success("OTP sent to your email", { id: loadingId })
                 setConfirmed(true)
+                setTimer(120)
             }
 
         } catch (error) {
@@ -72,19 +86,19 @@ const Verify = () => {
 
     }
 
-     const onSubmit = async(data: z.infer<typeof FormSchema>) => {
-       const userInfo = {
-        email,
-        otp : data.pin
-       }
-       try {
-         const loadingId = toast.loading('Verifying OTP...')
+    const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+        const userInfo = {
+            email,
+            otp: data.pin
+        }
+        try {
+            const loadingId = toast.loading('Verifying OTP...')
             const res = await verifyOtp(userInfo).unwrap()
-            
+
             if (res.success) {
-                toast.success("OTP Verified", {id : loadingId})
+                toast.success("OTP Verified", { id: loadingId })
             }
-           
+
 
         } catch (error) {
             console.log(error);
@@ -133,7 +147,13 @@ const Verify = () => {
                                                     </InputOTP>
                                                 </FormControl>
                                                 <FormDescription>
-                                                    Please enter the one-time password sent to your email.
+                                                    <Button onClick={handleSendOtp}
+                                                        disabled={timer !== 0}
+                                                        className={cn("",{
+                                                            "text-gray-600" : timer !== 0
+                                                        })}
+                                                        type="button" variant="link">Reset OTP: </Button>
+                                                    {timer}
                                                 </FormDescription>
                                                 <FormMessage />
                                             </FormItem>
@@ -146,7 +166,7 @@ const Verify = () => {
                     </Card> : <Card className="w-[400px]">
                         <CardHeader>
                             <CardTitle>Please enter the confirm button to sent an OTP at <span className="text-blue-500">{email}</span></CardTitle>
-                            <Button onClick={handleConfirmed} className="w-[300px] mt-4 text-white cursor-pointer">Confirm</Button>
+                            <Button onClick={handleSendOtp} className="w-[300px] mt-4 text-white cursor-pointer">Confirm</Button>
                         </CardHeader>
                     </Card>
             }
